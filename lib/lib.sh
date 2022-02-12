@@ -52,9 +52,9 @@ function getkanjidata() (
 
 function collect() {
 	for f in $(find out/ -type f); do
-		for line in $(cat $f); do
+              	for line in $(cat $f); do
 			if [[ $f == out/kanji-* ]]; then
-                          getkanjidata "$(curl -s -o - $rooturl/kanji/$line)" > data/$line.json &
+                          getkanjidata "$(curl -s -o - $rooturl/kanji/$line)" > data/kanji/$line.json &
                         fi
       	        done
                 wait
