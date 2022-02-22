@@ -51,12 +51,51 @@ function getkanjidata() (
 )
 
 function collect() {
-	for f in $(find out/ -type f); do
+	for f in $(find out/ -type f -iname kanji-\*); do
+                local len="$(cat $f | wc -l)"
+                echo "Processing file '$f' ..." 
               	for line in $(cat $f); do
-			if [[ $f == out/kanji-* ]]; then
-                          getkanjidata "$(curl -s -o - $rooturl/kanji/$line)" > data/kanji/$line.json &
-                        fi
-      	        done
-                wait
+                          getkanjidata "$(curl -s -o - $rooturl/kanji/$line)" > data/kanji/$line.json
+                          echo -n X
+                done | pv -p -t -e -s $len - >/dev/null
 	done
+}
+
+# Output data from file formatted
+# $1 = path to file
+# $2 = kanji/radical/vocab
+function outputFormattedData() {
+  data="$(cat $1)"
+  type="$2"
+  level=$(echo $data | jq '.level')
+  primary=$(echo $data | jq '.meanings.primary')
+  on=$(echo $data | jq .readings.onyomi)
+  kun=$(echo $data | jq .readings.kunyomi)
+  case $type in
+    kanji)
+      echo "KANJI"
+      echo "Level: $level"
+      echo "Primary Meaning: $primary"
+      echo "Readings:"
+      printf " - On: %s\n" "$on"
+      printf " - Kun: %s\n" "$kun"
+      ;;
+    *) 
+      echo "no type given"
+      ;;
+  esac
+}
+
+# Sort input data
+# $1 = path to directory
+# $2 = index file
+# $3 = what to sort for
+function sortFor() {
+ echo '{"levels": ['
+ for level in $levels; do
+  rg -l "\"level\": $level," $1 | ./src/json_encode
+  if [ $level = 60 ]; then continue; fi;
+  echo ","
+ done
+ echo "]}"
 }
