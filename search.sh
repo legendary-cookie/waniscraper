@@ -5,9 +5,9 @@ found=($(fd --type=file "$1" data))
 if [ ${#found[@]} = '1' ]; then
 	type="$(basename "$(dirname "$found")")"
 	outputFormattedData "$found" "$type"
-        exit
+	exit
 else
-        PS3='Choose: '
+	PS3='Choose: '
 	select choice in "${found[@]}"; do
 		case $choice in
 		"Quit")
