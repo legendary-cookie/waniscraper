@@ -1,8 +1,14 @@
 #!/bin/bash
 
+
+function process() {
+          jq | sed 's/.json//g;s/data\/.*\///g' | jq -c
+}
+
 case "$1" in
 update)
-	./sort.sh | jq | sed 's/.json//g;s/data\/.*\///g' | jq -c >data/index/kanji.json
+	./sort.sh kanji | process >data/index/kanji.json
+        ./sort.sh radicals | process >data/index/radicals.json
 	exit
 	;;
 level)
